@@ -1,0 +1,347 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cal Deliveries | Premium delivery system</title>
+    <style>
+        :root {
+            --primary: #6366f1; --secondary: #ec4899; --bg: #f8fafc; 
+            --card: #ffffff; --text: #1e293b; --header: rgba(255, 255, 255, 0.9);
+            --danger: #ef4444;
+        }
+        [data-theme="dark"] {
+            --primary: #818cf8; --secondary: #f472b6; --bg: #0f172a; 
+            --card: #1e293b; --text: #f1f5f9; --header: rgba(15, 23, 42, 0.9);
+        }
+        
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Inter', sans-serif; transition: background 0.3s, color 0.3s; }
+        body { background-color: var(--bg); color: var(--text); overflow-x: hidden; }
+
+        /* HEADER */
+        header {
+            background: var(--header); backdrop-filter: blur(10px);
+            padding: 1rem 5%; position: sticky; top: 0; z-index: 100;
+            display: flex; justify-content: space-between; align-items: center;
+            box-shadow: 0 2px 15px rgba(0,0,0,0.1);
+        }
+        .nav-links { display: flex; align-items: center; gap: 15px; }
+        .logo-area { display: flex; align-items: center; gap: 12px; }
+        .logo-img { width: 40px; height: 40px; border-radius: 8px; }
+
+        nav button {
+            padding: 10px 18px; border: none; background: transparent;
+            font-weight: 700; cursor: pointer; border-radius: 8px; color: var(--text);
+        }
+        nav button.active { background: var(--primary); color: white; }
+
+        .theme-btn { background: var(--primary); color: white; border: none; padding: 10px 15px; border-radius: 20px; cursor: pointer; font-size: 0.85rem; font-weight: bold; }
+
+        /* PAGES */
+        .page { display: none; padding: 40px 5%; max-width: 1200px; margin: 0 auto; animation: fadeInUp 0.4s ease; }
+        @keyframes fadeInUp { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
+        /* PRODUCTS */
+        .product-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 25px; }
+        .product-card { background: var(--card); border-radius: 24px; overflow: hidden; box-shadow: 0 10px 20px rgba(0,0,0,0.05); cursor: pointer; border: 1px solid rgba(0,0,0,0.05); }
+        .product-card img { width: 100%; height: 220px; object-fit: cover; }
+
+        /* MODAL */
+        .modal {
+            display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.7);
+            backdrop-filter: blur(6px); z-index: 1000; justify-content: center; align-items: center;
+        }
+        .modal-content { background: var(--card); color: var(--text); padding: 35px; border-radius: 28px; width: 95%; max-width: 600px; max-height: 85vh; overflow-y: auto; }
+        
+        .option-box { border: 2px solid #e2e8f0; border-radius: 14px; padding: 14px; margin-bottom: 10px; cursor: pointer; font-weight: 600; }
+        .option-box.selected { border-color: var(--primary); background: rgba(99, 102, 241, 0.15); }
+
+        input, select, textarea { width: 100%; padding: 14px; border: 2px solid #e2e8f0; border-radius: 14px; margin-top: 8px; margin-bottom: 15px; background: var(--card); color: var(--text); font-size: 1rem; }
+
+        /* TRACKING */
+        .track-card { background: var(--card); padding: 25px; border-radius: 24px; border: 1px solid #e2e8f0; margin-bottom: 25px; position: relative; }
+        .progress-container { background: #e2e8f0; height: 14px; border-radius: 7px; margin: 20px 0; overflow: hidden; }
+        .progress-fill { background: linear-gradient(90deg, var(--primary), var(--secondary)); height: 100%; width: 0%; transition: width 0.5s; }
+
+        .cancel-btn {
+            background: var(--danger); color: white; border: none; padding: 10px 18px; 
+            border-radius: 10px; cursor: pointer; font-weight: bold; margin-top: 10px;
+            transition: opacity 0.2s;
+        }
+        .cancel-btn:hover { opacity: 0.8; }
+
+        .buy-btn { width: 100%; padding: 18px; background: var(--primary); color: white; border: none; border-radius: 16px; font-weight: 800; cursor: pointer; margin-top: 20px; font-size: 1.1rem; }
+        
+        .device-info { font-size: 0.8rem; color: var(--secondary); font-weight: bold; margin-top: 5px; text-transform: uppercase; }
+    </style>
+</head>
+<body data-theme="light">
+
+    <header>
+        <div class="logo-area">
+            <img src="logo.png" class="logo-img">
+            <h2 style="letter-spacing: -1.5px; font-weight: 900; font-size: 1.6rem;">CAL DELIVERIES</h2>
+        </div>
+        <div class="nav-links">
+            <nav id="main-nav">
+                <button onclick="router('home')" id="nav-home">Home</button>
+                <button onclick="router('products')" id="nav-products">Shop</button>
+                <button onclick="router('deliveries')" id="nav-deliveries">My Deliveries</button>
+                <button onclick="router('about')" id="nav-about">About</button>
+            </nav>
+            <button class="theme-btn" onclick="toggleTheme()">🌓 Theme</button>
+        </div>
+    </header>
+
+    <div id="home" class="page">
+        <div style="height: 650px; background: url('hero.jpg') center/cover; border-radius: 5px; box-shadow: 0 10px 10px rgba(0,0,0,0.1);"></div>
+        <h1 style="margin-top: 10px; font-size: 2.5rem;">Professional deliverie services.</h1>
+        <p style="font-size: 1.2rem; opacity: 0.8; margin-top: 10px;">The world's fastest delivery services</p>
+    </div>
+
+    <div id="products" class="page">
+        <div class="product-grid" id="grid"></div>
+    </div>
+
+    <div id="deliveries" class="page">
+        <h2 style="margin-bottom: 25px;">Live Tracking</h2>
+        <div id="tracking-list"></div>
+        <div id="no-orders" style="text-align: center; display: none; padding: 50px;">
+            <p style="font-size: 1.2rem; opacity: 0.5;">No active shipments found in the vault.</p>
+        </div>
+    </div>
+
+    <div id="about" class="page">
+        <h1 style="font-size: 22px; text-align: center; font-weight: 600; line-height: 1.6;">
+            At Cal Deliveries, we believe that logistics should be the most reliable part of your day. 
+            Whether it’s a life-saving medical specimen or a high-stakes shipment, our mission remains the same: 
+            precision, speed, and absolute integrity.
+        </h1>
+        <p style="text-align: center; font-size: 1.1rem; margin-top: 20px;">Cal Deliveries: Redefining global delivery since the 1990.</p>
+    </div>
+
+    <div id="modal" class="modal">
+        <div class="modal-content">
+            <h2 id="m-title" style="font-size: 1.8rem;">Product</h2>
+            <br>
+            <label>Package Size</label>
+            <select id="size">
+                <option>XS</option><option>S</option><option>M</option><option>L</option><option>XL</option><option>XXXXXXXXXXXXXXXXXXXL</option>
+            </select>
+
+            <label>Delivery Velocity</label>
+            <div class="option-box" id="t1" onclick="selectTier('Bronze', 2592000000, 't1')">Bronze (30 weeks)</div>
+            <div class="option-box" id="t2" onclick="selectTier('Base', 1209600000, 't2')">Base (14 Days)</div>
+            <div class="option-box" id="t3" onclick="selectTier('Pro', 259200000, 't3')">Pro (3 Days)</div>
+            <div class="option-box" id="t4" onclick="selectTier('Extreme', 7200000, 't4')">Extreme (2 Hours)</div>
+
+            <label>Currency Provider</label>
+            <div class="option-box" id="p1" onclick="selectPay('Skibidi Dollar', 'p1')">🪙 Skibidi Dollar</div>
+            <div class="option-box" id="p2" onclick="selectPay('Credit Card', 'p2')">💳 Credit Card</div>
+            <div class="option-box" id="p3" onclick="selectPay('Cash (In Person)', 'p3')">💵 Cash (In Person)</div>
+
+            <input type="text" id="cust-name" placeholder="Receiver Name">
+            <input type="text" id="cust-addr" placeholder="Shipping Coordinates / Address">
+            
+            <div style="background: linear-gradient(135deg, var(--primary), var(--secondary)); color: white; padding: 20px; border-radius: 18px; margin-top: 15px; text-align: center;">
+                <span style="font-size: 0.9rem; opacity: 0.9;">TOTAL VALUATION:</span><br>
+                <strong style="font-size: 1.5rem;" id="price-tag">$0.00</strong>
+            </div>
+
+            <div style="margin-top: 25px; padding: 15px; border-radius: 15px; background: rgba(0,0,0,0.03);">
+                <h4> Reviews</h4>
+                <div id="rev-list" style="max-height: 100px; overflow-y: auto; margin: 10px 0; font-size: 0.9rem;"></div>
+                <input type="text" id="rev-user" placeholder="Name">
+                <textarea id="rev-text" placeholder="Write feedback..." style="height: 60px;"></textarea>
+                <button onclick="addReview()" style="background:var(--text); color:var(--card); border:none; padding:8px 15px; border-radius:10px; cursor:pointer; font-weight:bold;">Submit Review</button>
+            </div>
+
+            <button onclick="confirmOrder()" class="buy-btn">AUTHORIZE PURCHASE</button>
+            <button onclick="closeModal()" style="width:100%; background:none; border:none; margin-top:15px; cursor:pointer; color: var(--text); font-weight: bold;">Abort</button>
+        </div>
+    </div>
+
+    <script>
+        const products = [
+            { id: 0, name: "Vince Klein Underwear", img: "prod1.jpg" },
+            { id: 1, name: "Premium smart underwear", img: "prod2.jpg" },
+            { id: 2, name: "Underwear light", img: "prod3.jpg" },
+            { id: 3, name: "Waterproof underwear", img: "prod4.jpg" },
+            { id: 4, name: "Slaves", img: "prod5.jpg" },
+            { id: 5, name: "underwear basics", img: "prod6.jpg" }
+        ];
+
+        let activeId = 0, currentTier = 'Base', currentMs = 1209600000, currentPay = 'Credit Card';
+
+        // --- NEW: DEVICE DETECTION LOGIC ---
+        function getDeviceModel() {
+            const ua = navigator.userAgent;
+            let model = "Unknown Device";
+
+            if (/android/i.test(ua)) {
+                // Extracts model from "Android 10; Build/..." strings
+                const match = ua.match(/\(([^;]+);([^;]+);([^?)]+)\)/);
+                if (match && match[3]) {
+                    model = match[3].trim();
+                } else {
+                    // Fallback for different UA formats
+                    const parts = ua.split(')');
+                    if (parts.length > 0) {
+                        const subParts = parts[0].split(';');
+                        model = subParts[subParts.length - 1].trim();
+                    }
+                }
+            } else if (/iPad|iPhone|iPod/.test(ua) && !window.MSStream) {
+                model = "Apple iOS Device";
+            } else if (/Macintosh/.test(ua)) {
+                model = "Mac Desktop";
+            } else if (/Windows/.test(ua)) {
+                model = "Windows PC";
+            }
+            return model;
+        }
+
+        function toggleTheme() {
+            const body = document.body;
+            body.setAttribute('data-theme', body.getAttribute('data-theme') === 'light' ? 'dark' : 'light');
+        }
+
+        function router(id) {
+            document.querySelectorAll('.page').forEach(p => p.style.display = 'none');
+            document.querySelectorAll('#main-nav button').forEach(b => b.classList.remove('active'));
+            document.getElementById(id).style.display = 'block';
+            const btn = document.getElementById('nav-' + id);
+            if(btn) btn.classList.add('active');
+            if(id === 'products') renderGrid();
+            if(id === 'deliveries') renderTracking();
+        }
+
+        function renderGrid() {
+            document.getElementById('grid').innerHTML = products.map(p => `
+                <div class="product-card" onclick="openModal(${p.id})">
+                    <img src="${p.img}">
+                    <div style="padding:20px"><h3>${p.name}</h3></div>
+                </div>
+            `).join('');
+        }
+
+        function openModal(id) {
+            activeId = id;
+            document.getElementById('m-title').innerText = products[id].name;
+            document.getElementById('price-tag').innerText = "$" + (Math.random() * (67000) + 1).toFixed(2) + " Million";
+            document.getElementById('modal').style.display = 'flex';
+            renderReviews();
+        }
+
+        function closeModal() { document.getElementById('modal').style.display = 'none'; }
+
+        function selectTier(t, ms, el) {
+            currentTier = t; currentMs = ms;
+            document.querySelectorAll('[id^="t"]').forEach(i => i.classList.remove('selected'));
+            document.getElementById(el).classList.add('selected');
+        }
+
+        function selectPay(p, el) {
+            currentPay = p;
+            document.querySelectorAll('[id^="p"]').forEach(i => i.classList.remove('selected'));
+            document.getElementById(el).classList.add('selected');
+        }
+
+        function confirmOrder() {
+            const name = document.getElementById('cust-name').value;
+            const addr = document.getElementById('cust-addr').value;
+            if(!name || !addr) return alert("Security clearance required: Provide name and address.");
+
+            const order = {
+                id: Date.now(), 
+                timestamp: Date.now(), 
+                prod: products[activeId].name, 
+                user: name, 
+                addr: addr, 
+                tier: currentTier, 
+                duration: currentMs, 
+                pay: currentPay, 
+                cost: document.getElementById('price-tag').innerText,
+                device: getDeviceModel() // SAVE DEVICE INFO
+            };
+
+            let orders = JSON.parse(localStorage.getItem('cal_orders') || "[]");
+            orders.push(order);
+            localStorage.setItem('cal_orders', JSON.stringify(orders));
+            alert(`Authorized! Payment via ${currentPay} processed from ${order.device}.`);
+            closeModal();
+        }
+
+        function cancelOrder(orderId) {
+            if(confirm("Are you sure you want to abort this shipment? No refunds!")) {
+                let orders = JSON.parse(localStorage.getItem('cal_orders') || "[]");
+                orders = orders.filter(o => o.id !== orderId);
+                localStorage.setItem('cal_orders', JSON.stringify(orders));
+                renderTracking();
+            }
+        }
+
+        function addReview() {
+            const u = document.getElementById('rev-user').value;
+            const t = document.getElementById('rev-text').value;
+            if(!u || !t) return alert("Feedback requires a name and message.");
+            let revs = JSON.parse(localStorage.getItem('cal_revs') || "{}");
+            if(!revs[activeId]) revs[activeId] = [{u: "Logistic King", t: "i like gooning."}];
+            revs[activeId].push({u, t});
+            localStorage.setItem('cal_revs', JSON.stringify(revs));
+            document.getElementById('rev-text').value = "";
+            renderReviews();
+        }
+
+        function renderReviews() {
+            const revs = JSON.parse(localStorage.getItem('cal_revs') || "{}");
+            const pRevs = revs[activeId] || [{u: "Logistic King", t: "i go to the diddy party with this."}];
+            document.getElementById('rev-list').innerHTML = pRevs.map(r => `<div><strong style="color:var(--primary)">${r.u}:</strong> ${r.t}</div>`).join('');
+        }
+
+        function renderTracking() {
+            const orders = JSON.parse(localStorage.getItem('cal_orders') || "[]");
+            const list = document.getElementById('tracking-list');
+            const noOrders = document.getElementById('no-orders');
+            
+            if(orders.length === 0) {
+                list.innerHTML = "";
+                noOrders.style.display = "block";
+                return;
+            }
+
+            noOrders.style.display = "none";
+            list.innerHTML = orders.slice().reverse().map(o => `
+                <div class="track-card">
+                    <div style="display:flex; justify-content:space-between; align-items:start;">
+                        <div>
+                            <h3 style="color:var(--primary)">${o.prod}</h3>
+                            <p style="font-size:0.9rem; opacity:0.7;">Paid via ${o.pay} | ${o.tier} Tier</p>
+                            <p class="device-info">Ordered from: ${o.device || 'Unknown'}</p>
+                        </div>
+                        <button class="cancel-btn" onclick="cancelOrder(${o.id})">CANCEL</button>
+                    </div>
+                    <div class="progress-container"><div class="progress-fill" id="bar-${o.id}"></div></div>
+                    <div id="perc-${o.id}" style="font-weight:bold; font-size:0.9rem;">Syncing...</div>
+                </div>
+            `).join('');
+            updateBars();
+        }
+
+        function updateBars() {
+            const orders = JSON.parse(localStorage.getItem('cal_orders') || "[]");
+            orders.forEach(o => {
+                const elapsed = Date.now() - o.timestamp;
+                let progress = Math.min((elapsed / o.duration) * 100, 100);
+                const bar = document.getElementById(`bar-${o.id}`);
+                const txt = document.getElementById(`perc-${o.id}`);
+                if(bar) bar.style.width = progress + "%";
+                if(txt) txt.innerText = Math.floor(progress) + "% Delivered";
+            });
+        }
+
+        setInterval(updateBars, 1000);
+        window.onload = () => router('home');
+    </script>
+</body>
+</html>
